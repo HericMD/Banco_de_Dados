@@ -1,6 +1,3 @@
-# Banco_de_Dados
-# SQL query
-
 -- Active: 1657905613538@@127.0.0.1@3306@2info3_22_mod1
 
 SELECT * from clientes;
@@ -14,12 +11,24 @@ WHERE cod_cliente = 4;
 
 SELECT clientes.cod_cliente, nome, texto, titulo, dth 
 FROM clientes, comentario
-WHERE clientes.cod_cliente = 8
+WHERE clientes.cod_cliente = 5
 AND clientes.cod_cliente = comentario.cod_cliente;
 
 
 SELECT clientes.cod_cliente, nome, texto, dth, desc_produto
 FROM clientes, comentario, produtos
-WHERE clientes.cod_cliente = 5
+WHERE clientes.cod_cliente in(5, 8 ,1)  
+AND clientes.cod_cliente = comentario.cod_cliente
+AND comentario.cod_produto = produtos.cod_produto;
+
+SELECT clientes.cod_cliente, nome, texto, dth, desc_produto
+FROM clientes, comentario, produtos
+WHERE produtos.desc_produto = "Notebook Lenovo"
+AND clientes.cod_cliente = comentario.cod_cliente
+AND comentario.cod_produto = produtos.cod_produto;
+
+SELECT clientes.cod_cliente, nome, texto, dth, desc_produto
+FROM clientes, comentario, produtos
+WHERE clientes.cod_cliente >=05 AND clientes.cod_cliente <=8
 AND clientes.cod_cliente = comentario.cod_cliente
 AND comentario.cod_produto = produtos.cod_produto;
