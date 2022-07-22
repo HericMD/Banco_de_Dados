@@ -1,0 +1,25 @@
+# Banco_de_Dados
+# SQL query
+
+-- Active: 1657905613538@@127.0.0.1@3306@2info3_22_mod1
+
+SELECT * from clientes;
+
+SELECT nome, email, endereco_cobranca FROM clientes;
+
+SELECT cod_cliente, nome, email, endereco_cobranca 
+FROM clientes
+WHERE cod_cliente = 4;
+
+
+SELECT clientes.cod_cliente, nome, texto, titulo, dth 
+FROM clientes, comentario
+WHERE clientes.cod_cliente = 8
+AND clientes.cod_cliente = comentario.cod_cliente;
+
+
+SELECT clientes.cod_cliente, nome, texto, dth, desc_produto
+FROM clientes, comentario, produtos
+WHERE clientes.cod_cliente = 5
+AND clientes.cod_cliente = comentario.cod_cliente
+AND comentario.cod_produto = produtos.cod_produto;
