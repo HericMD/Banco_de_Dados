@@ -1,5 +1,3 @@
-# Banco_de_Dados
-
 select * from logradouro;
 
 select * from logradouro where cep = "89218480";
@@ -43,7 +41,7 @@ from cad_usuario, tipo_usuario, logradouro
 where cad_usuario.tipuser_cd = tipo_usuario.cod_tip_user 
 and cad_usuario.log_cd_logradouro = logradouro.cd_logradouro;
 
-29/07;
+#29/07
 
 select * from pedidos;
 
@@ -66,16 +64,39 @@ and tipo_logradouro.desc_tip_log = 'praça'
 #and cidades.ds_cidade_nome = 'joinville'
 ;
 
-select cod_pedido, qtditem, descricao, preco_unit
+select cod_pedido, cad_usuario_cpf, dtped, faturado, naofaturado, dtentrega, qtditem, descricao, preco_unit
 from itemped, produto, pedidos
-where preco_unit >= 1.2
-and preco_unit <= 8
+where produto.preco_unit >= 1.2
+and produto.preco_unit <= 8
 and itemped.prod_cod_produto = produto.cod_produto
 and pedidos.cod_pedido = itemped.ped_codpedidos;
 
 select * from pedidos;
 
+#05/10
+
+select * from produto; /* Como fazer comentário em bloco */
 
 
 
+#Exercícios
+#1) Cruc que retorne: descricao, preco_unit acrescido de R$ 0.75
+#2) Cruc que retorne: descricao, preco_unit, preco_emb, dos produtos com qtd_emb menor igual a 12
+#3)Cruc que retorne descricao, preco_unit e preco_unit acrescido de 0.5%
 
+select descricao, preco_unit + 0.75 as resultado from produto;
+
+select cod_produto, descricao, preco_unit, preco_emb, qtd_emb
+from produto;
+
+update produto set preco_emb = preco_unit * qtd_emb where cod_produto = 22;		
+
+update produto set preco_emb = preco_unit * qtd_emb
+where preco_emb <> preco_unit * qtd_emb;																																																				
+
+select descricao, preco_unit, preco_emb
+from produto
+where produto.qtd_emb <= 12;
+
+select descricao, preco_unit * 1.005 as preco_atualizado
+from produto;
