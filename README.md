@@ -173,30 +173,93 @@ select round(avg(preco_unit),4) from produto;
 
 #---------------------------------------------------------------------------------------------------
 
+#1
+
 #select cad_usuario.nome as username, (itemped.qtditem) as qtd_pedido
 #from cad_usuario, itemped, pedidos
 #where itemped.ped_codpedidos = pedidos.cod_pedido;
 
-select cad_usuario.nome as username, sum(itemped.qtditem) as qtd_pedido
-from cad_usuario, itemped, pedidos
-where itemped.ped_codpedidos = pedidos.cod_pedido
-#and cad_usuario.cpf =  pedidos.cad_usuario_cpf
-group by username;
+#select cad_usuario.nome as username, count(itemped.qtditem) as qtd_pedido 
+#from cad_usuario, itemped, pedidos 
+#where itemped.ped_codpedidos = pedidos.cod_pedido 
+#and cad_usuario.cpf = pedidos.cad_usuario_cpf group by username
+#;
 
-#select cad_usuario.nome, produto.preco_unit
-#from cad_usuario, pedidos, itemped, produto
-#where cad_usuario.cpf = pedidos.cad_usuario_cpf
-#and pedidos.cod_pedido = itemped.ped_codpedidos
+
+
+#CORREÇÃO--------------------------------------------
+select nome, count(cad_usuario_cpf)
+from cad_usuario, pedidos
+where cad_usuario.cpf = pedidos.cad_usuario_cpf 
+group by nome;
+#----------------------------------------------------
+
+#2
+
+#select cad_usuario.nome, produto.preco_unit 
+#from cad_usuario, pedidos, itemped, produto 
+#where cad_usuario.cpf = pedidos.cad_usuario_cpf 
+#and pedidos.cod_pedido = itemped.ped_codpedidos 
 #and itemped.prod_cod_produto = produto.cod_produto;
 
-select cad_usuario.nome, sum(produto.preco_unit * itemped.qtditem) as preco_total
-from cad_usuario, pedidos, itemped, produto
-where cad_usuario.cpf = pedidos.cad_usuario_cpf
-and pedidos.cod_pedido = itemped.ped_codpedidos
-and itemped.prod_cod_produto = produto.cod_produto
-group by nome;
+select cad_usuario.nome, sum(produto.preco_unit * itemped.qtditem) as preco_total 
+from cad_usuario, pedidos, itemped, produto 
+where cad_usuario.cpf = pedidos.cad_usuario_cpf 
+and pedidos.cod_pedido = itemped.ped_codpedidos 
+and itemped.prod_cod_produto = produto.cod_produto 
+and pedidos.cod_pedido = 1 #Filtro
+group by nome;	
 
-select
+#3
+
+#select count(cd_logradouro)
+#from logradouro;
+
+select uf.ds_uf_sigla as Sigla, uf.ds_uf_nome as Estado, count(logradouro.cd_logradouro) as logradouros
+from logradouro, bairros, cidades, uf
+where logradouro.bairros_cd_bairro = bairros.cd_bairro
+and bairros.cidade_cd_cidade = cidades.cd_cidade
+and cidades.uf_cd_uf = uf.cd_uf
+#and uf.cd_uf = 1 #(Filtro)
+group by uf.cd_uf;
+
+#4
+
+select uf.ds_uf_sigla as Sigla, uf.ds_uf_nome as Estado, count(bairros.cd_bairro) as Bairros
+from  bairros, cidades, uf
+where bairros.cidade_cd_cidade = cidades.cd_cidade
+and cidades.uf_cd_uf = uf.cd_uf
+group by uf.cd_uf;
+
+#5
+select pedidos.cod_pedido, sum(produto.preco_unit * itemped.qtditem) as preço_total
+from pedidos, produto, itemped
+where pedidos.cod_pedido = itemped.ped_codpedidos
+and itemped.prod_cod_produto = produto.cod_produto
+group by pedidos.cod_pedido;
+
+#---------------------------------------------------------------------------------------------------
+
+#26/10
+
+#Continuação Exercícios
+
+#1) CRUC que retorne: descrição do produto e a quantidade de vezes que ele foi comprado, agrupando pela descrição do produto.
+
+#2) CRUC que retorne: quantidade de pedidos agrupando pela sigla da UF.
+
+#3) CRUC que retorne: quantidade de usuarios agrupando pelo estado.
+
+#---------------------------------------------------------------------------------------------------
+
+#1
+select produto.descricao, itemped.qtd_item
+from produto, itemped
+where produto.cod_produto = itemped.prod_cod_produto
+group by produto.descricao;
+
+
+
 
 
 
