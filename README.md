@@ -253,11 +253,38 @@ group by pedidos.cod_pedido;
 #---------------------------------------------------------------------------------------------------
 
 #1
-select produto.descricao, itemped.qtd_item
+select produto.descricao, count(itemped.qtd_item)
 from produto, itemped
 where produto.cod_produto = itemped.prod_cod_produto
 group by produto.descricao;
 
+#select cod_produto from produto;
+#select prod_cod_produto from itemped;
+
+#2
+select count(pedidos.cod_pedido), uf.ds_uf_sigla
+from uf, cidades, bairros, logradouro, cad_usuario, pedidos
+where uf.cd_uf = cidades.uf_cd_uf
+and cidades.cd_cidade = bairros.cidade_cd_cidade
+and bairros.cd_bairro = logradouro.bairros_cd_bairro
+and logradouro.cd_logradouro = cad_usuario.log_cd_logradouro
+and cad_usuario.cpf = pedidos.cad_usuario_cpf
+group by uf.ds_uf_sigla;
+
+#select itemped.qtditem
+#from itemped
+#group by uf.ds_uf_sigla;
+
+#3
+select count(cad_usuario.cpf), uf.ds_uf_nome 
+from uf, cidades, bairros, logradouro, cad_usuario
+where uf.cd_uf = cidades.uf_cd_uf
+and cidades.cd_cidade = bairros.cidade_cd_cidade
+and bairros.cd_bairro = logradouro.bairros_cd_bairro
+and logradouro.cd_logradouro = cad_usuario.log_cd_logradouro
+
+group by uf.ds_uf_nome
+;
 
 
 
