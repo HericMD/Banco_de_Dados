@@ -1,292 +1,382 @@
-#28/09
+# BDMUSEU
+-- Geração de Modelo físico
+-- Sql ANSI 2003 - brModelo.
+-- Alunos: José Augusto Veridiana, Marcus Vinicius de Oliveira, Heric Matheus Damasio
 
-#---------------------------------------------------------------------------------------------------
+CREATE DATABASE BD_MUSEU_MJH;
+USE BD_MUSEU_MJH;
 
-select * from logradouro;
 
-select * from logradouro where cep = "89218480";
+CREATE TABLE autor (
+cod_autor int PRIMARY KEY AUTO_INCREMENT,
+nacionalidade_autor char(3) not null,
+nome_autor varchar(80) not null
+);
 
-select * from bairros where cd_bairro = "14033";
+CREATE TABLE salao (
+cod_salao int PRIMARY KEY AUTO_INCREMENT,
+num_salao int not null,
+andar_museu int not null,
+salao varchar(80) not null
+);
 
-select ds_logradouro_nome, ds_bairro_nome, ds_cidade_nome, ds_uf_nome, ds_uf_sigla
-from logradouro, bairros, cidades, uf
-where cep = "89218480" and 
-bairros_cd_bairro = cd_bairro and 
-cidade_cd_cidade = cd_cidade and
-uf_cd_uf = cd_uf;
+CREATE TABLE salao_obra (
+salao_cod_salao int not null,
+obra_cod_obra int not null,
+posicao_salao varchar(80) not null,
+FOREIGN KEY(salao_cod_salao) REFERENCES salao (cod_salao)
+);
 
-select * from cad_usuario;
+CREATE TABLE atividade (
+ob_cod_obra int not null,
+func_id_funcionario int not null,
+hora_entrada time not null,
+hora_saida time not null,
+data_atividade date not null
+);
 
-select nome, ds_logradouro_nome, ds_bairro_nome, ds_cidade_nome, ds_uf_nome, ds_uf_sigla
-from logradouro, bairros, cidades, uf, cad_usuario
-where
-bairros_cd_bairro = cd_bairro and 
-cidade_cd_cidade = cd_cidade and
-uf_cd_uf = cd_uf and
-log_cd_logradouro = cd_logradouro;
+CREATE TABLE tipo_funcionario (
+cod_tipo_funcionario int PRIMARY KEY AUTO_INCREMENT,
+tipo_funcionario varchar(80) not null
+);
 
-select * from pedidos;
+CREATE TABLE materia_prima (
+cod_mat_prima int PRIMARY KEY AUTO_INCREMENT,
+qtd_est_mat int not null,
+nome_mat_prima varchar(80) not null
+);
 
-select cad_usuario_cpf from pedidos
+CREATE TABLE funcionario (
+id_funcionario int PRIMARY KEY AUTO_INCREMENT,
+nome_funcionario varchar(80) not null,
+salario_funcionario decimal(10,2) not null,
+cpf_funcionario varchar(14) not null unique,
+cod_tipo_funcionario int not null,
+FOREIGN KEY(cod_tipo_funcionario) REFERENCES tipo_funcionario (cod_tipo_funcionario)
+);
+
+CREATE TABLE manutencao (
+mnt_obra int PRIMARY KEY AUTO_INCREMENT,
+data_termi_mnt date not null,
+custo_mnt decimal(10,2) not null,
+data_ini_mnt date not null,
+desc_mnt varchar(80) not null,
+cod_obra int not null,
+func_id_funcionario int not null,
+FOREIGN KEY(func_id_funcionario) REFERENCES funcionario (id_funcionario)
+);
+
+CREATE TABLE obra (
+cod_obra int PRIMARY KEY AUTO_INCREMENT,
+ano_obra int not null,
+titu_obra varchar(80) not null unique,
+peso_obra decimal(10,2) null,
+material_obra varchar(80) null,
+desc_estilo_obra varchar(80) null,
+cod_autor int not null,
+cod_tipo_obra int not null,
+FOREIGN KEY(cod_autor) REFERENCES autor (cod_autor)
+);
+
+CREATE TABLE tipo_obra (
+cod_tipo_obra int PRIMARY KEY AUTO_INCREMENT,
+desc_tipo_obra varchar(80) not null
+);
+
+CREATE TABLE manu_mat (
+Campo_1 int not null,
+Campo_2 int not null,
+qtd_mat_mnt varchar(15) not null,
+FOREIGN KEY(Campo_1) REFERENCES manutencao (mnt_obra),
+FOREIGN KEY(Campo_2) REFERENCES materia_prima (cod_mat_prima)
+);
+
+ALTER TABLE salao_obra ADD FOREIGN KEY(obra_cod_obra) REFERENCES obra (cod_obra);
+ALTER TABLE atividade ADD FOREIGN KEY(ob_cod_obra) REFERENCES obra (cod_obra);
+ALTER TABLE atividade ADD FOREIGN KEY(func_id_funcionario) REFERENCES funcionario (id_funcionario);
+ALTER TABLE manutencao ADD FOREIGN KEY(cod_obra) REFERENCES obra (cod_obra);
+ALTER TABLE obra ADD FOREIGN KEY(cod_tipo_obra) REFERENCES tipo_obra (cod_tipo_obra);
+
+insert into tipo_funcionario(tipo_funcionario)
+values
+("Operários de limpeza"),
+("Guarda"),
+("Restauradores de obras");
 ;
 
-select nome, cod_pedido from cad_usuario, pedidos
-where
-cpf = cad_usuario_cpf;
-
-select nome, cod_pedido, dtped, qtditem, descricao, preco_unit 
-from cad_usuario, pedidos, itemped, produto
-where cad_usuario.cpf = pedidos.cad_usuario_cpf and
-pedidos.cod_pedido = itemped.ped_codpedidos and
-itemped.prod_cod_produto = produto.cod_produto;
-
-select nome, cpf, descricao_tipo, ds_logradouro_nome 
-from cad_usuario, tipo_usuario, logradouro
-where cad_usuario.tipuser_cd = tipo_usuario.cod_tip_user 
-and cad_usuario.log_cd_logradouro = logradouro.cd_logradouro;
-
-#---------------------------------------------------------------------------------------------------
-
-#29/07
-
-#---------------------------------------------------------------------------------------------------
-
-select * from pedidos;
-
-select nome, email, tel, cod_pedido, dtped, qtditem, descricao, preco_unit 
-from cad_usuario, pedidos, itemped, produto
-where cad_usuario.cpf = pedidos.cad_usuario_cpf
-and produto.cod_produto = itemped.prod_cod_produto
-and pedidos.cod_pedido = itemped.ped_codpedidos
-#and cad_usuario.cpf = '63748762435'
+insert into funcionario(nome_funcionario, salario_funcionario, cpf_funcionario, cod_tipo_funcionario)
+values
+("Rogério", 2009.15, "255.662.580-50", 2),
+("Julia", 2541.64, "906.726.060-62", 3), #2
+("Pablo", 2498.77, "020.709.690-29", 3), #3
+("Paola", 1443.15, "126.773.170-28", 1),
+("Cleiton", 1452.74, "072.254.270-40", 1),
+("Jorge", 1436.98, "619.864.050-79", 1),
+("Píter", 1444.44, "692.698.170-16", 1),
+("Mariana", 2000.00, "090.414.970-64", 2),
+("Sélço", 1894.05, "558.215.420-57", 2),
+("Lurdes", 2052.54, "209.641.620-59", 2),
+("Daniela", 1473.04, "183.434.320-88", 1),
+("Luana", 1432.52, "107.970.800-66", 1),
+("Carlos", 2031.73, "954.722.330-54", 2),
+("Lucas", 1999.69, "568.774.250-65", 2),
+("Manuela", 2034.68, "633.496.180-22", 2),
+("Neusa", 2503.81, "459.159.230-89", 3), #16
+("Roberto", 2536.95, "806.181.570-26", 3), #17
+("Fernando", 2022.23, "897.775.970-61", 2),
+("Otávio", 1450.00, "594.958.540-24", 1),
+("Lucas", 2520.11, "411.579.300-77", 3) #20
 ;
 
-select * from tipo_logradouro;
+insert into autor(nacionalidade_autor, nome_autor)
+values
+("ITA", "Leonardo da Vinci"),
+("EUA", "Jackson Pollock"),
+("FRA", "Éduoard Manet"),
+("FRA", "Claude Monet"),
+("ESP", "Pablo Picasso"),
+("ITA", "Michelangelo"),
+("BRA", "Tarsila do Amaral"),
+("BRA", "Aleijadinho"),
+("BRA", "Vik Muniz"),
+("COL", "Fernando Botero"),
+("ITA", "Donatello"),
+("AUS", "Ron Mueck"),
+("HOL", "Vincent Van Gogh"),
+("HOL", "Frans Post"),
+("ESP", "Salvador Dalí"),
+("ESP", "Joan Miró"),
+("ARG", "Emílio Pettoruti"),
+("JAP", "Katsushika Hokusai"),
+("BEL", "René Magritte"),
+("ALE", "Rudolf Belling");
 
-select ds_logradouro_nome, ds_bairro_nome, ds_cidade_nome
-from logradouro, bairros, cidades, tipo_logradouro
-where logradouro.bairros_cd_bairro = bairros.cd_bairro
-and bairros.cidade_cd_cidade = cidades.cd_cidade
-and logradouro.log_cd_tip_log = tipo_logradouro.cd_tipo_logradouro 
-and tipo_logradouro.desc_tip_log = 'praça'
-#and cidades.ds_cidade_nome = 'joinville'
+insert into tipo_obra(desc_tipo_obra)
+values
+("Pintura"),
+("Escultura")
 ;
 
-select cod_pedido, cad_usuario_cpf, dtped, faturado, naofaturado, dtentrega, qtditem, descricao, preco_unit
-from itemped, produto, pedidos
-where produto.preco_unit >= 1.2
-and produto.preco_unit <= 8
-and itemped.prod_cod_produto = produto.cod_produto
-and pedidos.cod_pedido = itemped.ped_codpedidos;
-
-select * from pedidos;
-
-#---------------------------------------------------------------------------------------------------
-
-#05/10
-
-#---------------------------------------------------------------------------------------------------
-
-select * from produto; /* Como fazer comentário em bloco */
-
-#---------------------------------------------------------------------------------------------------
-
-#Exercícios
-#1) Cruc que retorne: descricao, preco_unit acrescido de R$ 0.75
-#2) Cruc que retorne: descricao, preco_unit, preco_emb, dos produtos com qtd_emb menor igual a 12
-#3)Cruc que retorne descricao, preco_unit e preco_unit acrescido de 0.5%
-
-#---------------------------------------------------------------------------------------------------
-
-select descricao, preco_unit + 0.75 as resultado from produto;
-
-select cod_produto, descricao, preco_unit, preco_emb, qtd_emb
-from produto;
-
-update produto set preco_emb = preco_unit * qtd_emb where cod_produto = 22;		
-
-update produto set preco_emb = preco_unit * qtd_emb
-where preco_emb <> preco_unit * qtd_emb;																																																				
-
-select descricao, preco_unit, preco_emb
-from produto
-where produto.qtd_emb <= 12;
-
-select descricao, preco_unit * 1.005 as preco_atualizado
-from produto;
-
-#---------------------------------------------------------------------------------------------------
-
-#19/10
-
-#---------------------------------------------------------------------------------------------------
-
-select * from produto;
-
-select max(preco_unit) from produto;
-
-select min(preco_unit) from produto;
-
-select avg(preco_unit) from produto;
-
-select count(cod_produto) from produto;
-
-select sum(preco_unit) from produto;
-
-select descricao, preco_unit 
-from produto
-where preco_unit = (select max(preco_unit) from produto);
-
-select nome, descricao_tipo
-from cad_usuario, tipo_usuario
-where cad_usuario.tipuser_cd = tipo_usuario.cod_tip_user;
-
-#select count(tipuser_cd)
-#from cad_usuario, tipo_usuario
-#where cad_usuario.tipuser_cd = tipo_usuario.cod_tip_user;
-
-select descricao_tipo, count(cod_tip_user) as codigo_tipo
-from cad_usuario, tipo_usuario
-where cad_usuario.tipuser_cd = tipo_usuario.cod_tip_user
-group by descricao_tipo;
-
-select descricao_tipo as Tipo_usuario, count(cod_tip_user) as numero
-from cad_usuario, tipo_usuario
-where cad_usuario.tipuser_cd = tipo_usuario.cod_tip_user
-group by descricao_tipo order by descricao_tipo desc; #desc -> maior para o menor; asc -> menor para o maior
-
-select round(avg(preco_unit),4) from produto;
-
-#---------------------------------------------------------------------------------------------------
-
-#Exercícios
-
-#1) CRUC que retorne: nome dos usuários e a quantidade de pedidos realizados por cada usuário.
-
-#2) CRUC que retorne: nome do usuário e o valor total do pedido, filtrando por um código de pedido válido.
-
-#3) CRUC que retorne: a quantidade de logradouros filtrando pela sigla do estado.
-
-#4) CRUC que retorne: a quantidade de bairros agrupando pela sigla do estado.
-
-#5) CRUC que retorne: preço total dos pedidos agrupando pelo código dos pedidos.
-
-#---------------------------------------------------------------------------------------------------
-
-#1
-
-#select cad_usuario.nome as username, (itemped.qtditem) as qtd_pedido
-#from cad_usuario, itemped, pedidos
-#where itemped.ped_codpedidos = pedidos.cod_pedido;
-
-#select cad_usuario.nome as username, count(itemped.qtditem) as qtd_pedido 
-#from cad_usuario, itemped, pedidos 
-#where itemped.ped_codpedidos = pedidos.cod_pedido 
-#and cad_usuario.cpf = pedidos.cad_usuario_cpf group by username
-#;
-
-
-
-#CORREÇÃO--------------------------------------------
-select nome, count(cad_usuario_cpf)
-from cad_usuario, pedidos
-where cad_usuario.cpf = pedidos.cad_usuario_cpf 
-group by nome;
-#----------------------------------------------------
-
-#2
-
-#select cad_usuario.nome, produto.preco_unit 
-#from cad_usuario, pedidos, itemped, produto 
-#where cad_usuario.cpf = pedidos.cad_usuario_cpf 
-#and pedidos.cod_pedido = itemped.ped_codpedidos 
-#and itemped.prod_cod_produto = produto.cod_produto;
-
-select cad_usuario.nome, sum(produto.preco_unit * itemped.qtditem) as preco_total 
-from cad_usuario, pedidos, itemped, produto 
-where cad_usuario.cpf = pedidos.cad_usuario_cpf 
-and pedidos.cod_pedido = itemped.ped_codpedidos 
-and itemped.prod_cod_produto = produto.cod_produto 
-and pedidos.cod_pedido = 1 #Filtro
-group by nome;	
-
-#3
-
-#select count(cd_logradouro)
-#from logradouro;
-
-select uf.ds_uf_sigla as Sigla, uf.ds_uf_nome as Estado, count(logradouro.cd_logradouro) as logradouros
-from logradouro, bairros, cidades, uf
-where logradouro.bairros_cd_bairro = bairros.cd_bairro
-and bairros.cidade_cd_cidade = cidades.cd_cidade
-and cidades.uf_cd_uf = uf.cd_uf
-#and uf.cd_uf = 1 #(Filtro)
-group by uf.cd_uf;
-
-#4
-
-select uf.ds_uf_sigla as Sigla, uf.ds_uf_nome as Estado, count(bairros.cd_bairro) as Bairros
-from  bairros, cidades, uf
-where bairros.cidade_cd_cidade = cidades.cd_cidade
-and cidades.uf_cd_uf = uf.cd_uf
-group by uf.cd_uf;
-
-#5
-select pedidos.cod_pedido, sum(produto.preco_unit * itemped.qtditem) as preço_total
-from pedidos, produto, itemped
-where pedidos.cod_pedido = itemped.ped_codpedidos
-and itemped.prod_cod_produto = produto.cod_produto
-group by pedidos.cod_pedido;
-
-#---------------------------------------------------------------------------------------------------
-
-#26/10
-
-#Continuação Exercícios
-
-#1) CRUC que retorne: descrição do produto e a quantidade de vezes que ele foi comprado, agrupando pela descrição do produto.
-
-#2) CRUC que retorne: quantidade de pedidos agrupando pela sigla da UF.
-
-#3) CRUC que retorne: quantidade de usuarios agrupando pelo estado.
-
-#---------------------------------------------------------------------------------------------------
-
-#1
-select produto.descricao, count(itemped.qtd_item)
-from produto, itemped
-where produto.cod_produto = itemped.prod_cod_produto
-group by produto.descricao;
-
-#select cod_produto from produto;
-#select prod_cod_produto from itemped;
-
-#2
-select count(pedidos.cod_pedido), uf.ds_uf_sigla
-from uf, cidades, bairros, logradouro, cad_usuario, pedidos
-where uf.cd_uf = cidades.uf_cd_uf
-and cidades.cd_cidade = bairros.cidade_cd_cidade
-and bairros.cd_bairro = logradouro.bairros_cd_bairro
-and logradouro.cd_logradouro = cad_usuario.log_cd_logradouro
-and cad_usuario.cpf = pedidos.cad_usuario_cpf
-group by uf.ds_uf_sigla;
-
-#select itemped.qtditem
-#from itemped
-#group by uf.ds_uf_sigla;
-
-#3
-select count(cad_usuario.cpf), uf.ds_uf_nome 
-from uf, cidades, bairros, logradouro, cad_usuario
-where uf.cd_uf = cidades.uf_cd_uf
-and cidades.cd_cidade = bairros.cidade_cd_cidade
-and bairros.cd_bairro = logradouro.bairros_cd_bairro
-and logradouro.cd_logradouro = cad_usuario.log_cd_logradouro
-
-group by uf.ds_uf_nome
+insert into obra(ano_obra, titu_obra, desc_estilo_obra, cod_autor, cod_tipo_obra)
+values
+(1503, "Mona Lisa", "renascentista", 1, 1),
+(1928, "Abaporu", "modernista", 7, 1),
+(1964, "O Filho do Homem", "surrealista", 19, 1),
+(1908, "San Giorgino Maggiore", "impressionista", 4, 1),
+(1650, "Cachoeira de Paulo Afonso", "paisagista", 14, 1),
+(1889, "A Noite Estrelada", "modernista", 13, 1),
+(1937, "Guernica", "surrealista", 5, 1),
+(1922, "La Granja","naïf", 16, 1),
+(1952, "Convergencce", "abstrata", 2, 1),
+(1961, "Farfalla", "abstrata", 17, 1),
+(1931, "A Persistência da Memória", "surrealista", 15, 1),
+(1481, "Capela sistina", "afresco", 6, 1),
+(1831, "A Grande Onda de Kanagawa", "gravura", 18, 1),
+(1863, "Olympia", "impressionista", 3, 1),
+(1978, "Mona Lisa (releitura)", "naïf", 10, 1),
+(1996, "Sugar Children: Valicia Bathes in Sunday Clothes", "fotografia", 9, 1)
 ;
 
+insert into obra(ano_obra, titu_obra, peso_obra, material_obra, cod_autor, cod_tipo_obra)
+values
+(1972, "Schuttblume", 330.00, "madeira", 20, 2),
+(2005, "In bed", 1000.00, "argila & silicone", 12, 2),
+(1440, "David", 6000.00, "mármore", 11, 2),
+(1771, "Igreja de São Francisco de Assis (Ouro Preto)", 500000.00, "madeira & pedra", 8, 2)
+;
 
+insert into atividade(ob_cod_obra, func_id_funcionario, hora_entrada, hora_saida, data_atividade) 
+values 
+(11, 14, "15:32:15", "22:41:21", "2022-11-19"),
+(20, 12, "02:31:01", "14:15:53", "2021-12-01"),
+(13, 13, "11:14:42", "11:15:43", "2022-10-04"),
+(01, 20, "00:00:00", "23:59:59", "2020-02-28"),
+(04, 01, "13:22:44", "15:43:21", "2012-05-10"),
+(03, 10, "11:21:24", "11:33:11", "2015-06-23"),
+(19, 09, "23:01:58", "23:39:04", "2022-06-09"),
+(15, 08, "12:00:00", "13:13:13", "2019-03-25"),
+(12, 19, "08:45:06", "17:22:13", "2022-08-31"),
+(09, 11, "09:03:00", "09:37:00", "2011-09-11"), 
+(18, 05, "16:13:35", "20:20:19", "2015-07-13"),
+(02, 17, "03:00:00", "03:33:33", "2003-03-30"),
+(10, 02, "09:23:15", "23:10:42", "2022-01-05"),
+(17, 16, "13:12:11", "14:13:12", "2022-05-11"),
+(05, 15, "01:55:56", "18:16:15", "2022-06-04"),
+(06, 04, "04:44:44", "14:04:40", "1995-04-01"),
+(16, 03, "10:14:50", "19:01:32", "2000-01-01"),
+(07, 18, "23:11:43", "23:15:06", "2009-05-15"),
+(14, 06, "11:15:00", "17:00:00", "2016-12-25"),
+(08, 07, "05:43:21", "23:15:23", "2017-07-11")
+;
 
+insert into materia_prima(qtd_est_mat, nome_mat_prima)
+values
+(7164, "argila"),
+(5123, "madeira"),
+(1764, "cera"),
+(36234, "tinta"),
+(1826, "pedra"),
+(39421, "óleo"),
+(21922, "aquarela"),
+(7810, "ferro"),
+(1542, "bronze"),
+(3128, "cobre"),
+(8349, "gesso"),
+(2133, "silicone"),
+(3991, "mármore"),
+(5312, "carvão"),
+(4830, "grafite"),
+(2022, "alumínio"),
+(5076, "plástico"),
+(248, "ouro"),	
+(7777, "barro"),
+(2048, "resina")
+;
 
+insert into manutencao(data_termi_mnt, custo_mnt, data_ini_mnt, desc_mnt, cod_obra, func_id_funcionario)
+values
+("2021-10-30", 5123.12, "2021-09-04", "Restaurar", 1, 2),
+("2022-04-01", 1421.53, "2022-03-23", "Conservar", 2, 3),
+("2022-02-14", 4325.13, "2022-01-26", "Identificar", 3, 16),
+("2015-11-23", 3289.41, "2013-09-29", "Restaurar", 4, 17),
+("2020-05-17", 4011.69, "2020-04-11", "Restaurar", 5, 20),
+("2022-03-16", 2376.15, "2022-02-27", "Restaurar", 6, 2),
+("2022-05-07", 1874.64, "2022-05-01", "Identificar", 7, 3),
+("2022-09-11", 9382.73, "2022-04-15", "Restaurar", 8, 16),
+("2022-10-29", 7421.42, "2022-06-28", "Identificar", 9, 17),
+("2022-08-30", 8712.30, "2022-04-04", "Restaurar", 10, 20),
+("2022-03-01", 5312.51, "2022-01-01", "Restaurar", 11, 2 ),
+("2022-05-24", 3962.37, "2022-03-05", "Conservar", 12, 3),
+("2022-02-28", 7311.11, "2021-10-12", "Restaurar", 13, 16),
+("2022-04-04", 5656.56, "2022-01-05", "Restaurar", 14, 17),
+("2022-01-11", 1234.56, "2021-12-10", "Restaurar", 15, 20),
+("2022-11-22", 3566.94, "2022-08-15", "Conservar", 16, 2),
+("2022-07-09", 2564.33, "2022-05-21", "Restaurar", 17, 3),
+("2022-06-11", 4682.16, "2022-02-15", "Identificar", 18, 16),
+("2022-12-24", 9732.12, "2022-02-10", "Resturar", 19, 17),
+("2022-05-12", 5000.00, "2021-12-12", "Restaurar", 20, 20)
+; 
+insert into manu_mat(Campo_1, Campo_2, qtd_mat_mnt)
+values
+(1, 20, "231 resinas"),
+(2, 19, "633 barros"),
+(3, 18, "57 ouros"),
+(4, 17, "164 plásticos"),
+(5, 16, "76 alumínios"),
+(6, 15, "210 grafietes"),
+(7, 14, "241 carvões"),
+(8, 13, "187 mármores"),
+(9, 12, "99 silicones"),
+(10, 11, "500 gessos"),
+(11, 10, "162 cobres"),
+(12, 9, "81 bronzes"),
+(13, 8, "255 ferros"),
+(14, 7, "1005 aquarelas"),
+(15, 6, "2560 óleos"),
+(16, 5, "173 pedras"),
+(17, 4, "1046 tintas"),
+(18, 3, " 120 ceras"),
+(19, 2, "231 madeiras"),
+(20, 1, "412 argilas")
+;
 
+insert into salao(num_salao, andar_museu, salao)
+values
+(101, 1, "S101"),
+(102, 1, "S102"),
+(103, 1, "S103"),
+(104, 1, "S104"),
+(105, 1, "S105"),
+(201, 2, "S201"),
+(202, 2, "S202"),
+(203, 2, "S203"),
+(204, 2, "S204"),
+(205, 2, "S205"),
+(301, 3, "S301"),
+(302, 3, "S302"),
+(303, 3, "S303"),
+(304, 3, "S304"),
+(305, 3, "S305"),
+(401, 4, "S401"),
+(402, 4, "S402"),
+(403, 4, "S403"),
+(404, 4, "S404"),
+(405, 4, "S405")
+;
+
+insert into salao_obra(salao_cod_salao, obra_cod_obra, posicao_salao)
+values
+(1, 20, "primeiro andar, primeira esquerda"),
+(2, 19, "primeiro andar, primeira direita"),
+(3, 18, "primeiro andar, segunda esquerda"),
+(4, 17, "primeiro andar, segunda direita"),
+(5, 16, "primeiro andar, última porta"),
+(6, 15, "segundo andar, primeira esquerda"),
+(7, 14, "segundo andar, primeira direita"),
+(8, 13, "segundo andar, segunda esquerda"),
+(9, 12, "segundo andar, segunda direita"),
+(10, 11, "segundo andar, última porta"),
+(11, 10, "terceiro andar, primeira esquerda"),
+(12, 9, "terceiro andar, primeira direita"),
+(13, 8, "terceiro andar, segunda esquerda"),
+(14, 7, "terceiro andar, segunda direita"),
+(15, 6, "terceiro andar, última porta"),
+(16, 5, "quarto andar, primeira esquerda"),
+(17, 4, "quarto andar, primeira direita"),
+(18, 3, "quarto andar, segunda esquerda"),
+(19, 2, "quarto andar, segunda direita"),
+(20, 1, "quarto andar, última porta")
+;
+
+# 1. CRUC que retorne: nome_funcionario, cpf_funcionario, tipo_funcionario, salario_funcionario, de todos os funcionários cadastrados na entidade funcionario.
+# 2.CRUC que retorne: título da obra, ano da obra, nome autor, nacionalidade do autor, descrição estilo da obra, para as obras do tipo pintura.
+# 3. CRUC que retorne: custo manutenção, data início manutenção, data término manutenção, descrição da manutenção, de todas as manutenções cadastradas.
+# 4. CRUC que retorne: nome matéria prima, quantidade da matéria prima na manutenção, descrição da manutenção, custo da manutenção, título obra, ano obra, nome funcionário responsável pela manutenção, filtrando pelo nome do autor da obra.
+# 5. CRUC que retorne: título obra e o cálculo do custo total da manutenção agrupando por título da obra. (Considerar a soma de todas as manutenções de cada obra)
+# 6. CRUC que retorne: hora entrada, hora saída, data atividade, filtrando pelo número do salão.
+
+select hora_entrada, hora_saida, data_atividade
+from atividade, obra, salao, salao_obra
+where atividade.ob_cod_obra = obra.cod_obra
+and obra.cod_obra = salao_obra.obra_cod_obra
+and salao_obra.salao_cod_salao = salao.cod_salao
+and salao.num_salao = 101 #Filtro
+;
+select num_salao from salao;
+
+# 7. CRUC que retorne: nacionalidade do autor, ano obra, título obra, descrição estilo obra, filtrando pelo tipo da obra.
+
+select nacionalidade_autor, ano_obra, titu_obra, desc_estilo_obra
+from autor, obra, tipo_obra
+where autor.cod_autor = obra.cod_autor
+and tipo_obra.cod_tipo_obra = obra.cod_tipo_obra
+#and tipo_obra.desc_tipo_obra = "Escultura"
+and tipo_obra.desc_tipo_obra = "Pintura"
+; 
+
+# 8. CRUC que retorne: quantidade de obras agrupando pela descrição do tipo de cada obra.
+
+select tipo_obra.desc_tipo_obra as "tipo_obra", count(obra.cod_obra) as "qtd_obras"
+from obra, tipo_obra
+where obra.cod_tipo_obra = tipo_obra.cod_tipo_obra
+group by tipo_obra.cod_tipo_obra;
+;
+
+# 9. CRUC que retorne: quantidade de obras expostas, agrupando pelo andar do museu.
+
+select salao.andar_museu, count(obra.cod_obra)
+from salao, salao_obra, obra
+where obra.cod_obra = salao_obra.obra_cod_obra
+and salao_obra.salao_cod_salao = salao.cod_salao
+group by salao.andar_museu
+; 
+
+# 10. CRUC que retorne: número salão, andar museu, salão, descrição estilo obra, título obra, ano obra, nome autor, filtrando pela posição do salão.
+
+select salao.salao, salao.num_salao, salao.andar_museu, obra.desc_estilo_obra, obra.titu_obra, obra.ano_obra, autor.nome_autor
+from salao, obra, autor, salao_obra
+where salao.cod_salao = salao_obra.salao_cod_salao
+and obra.cod_obra = salao_obra.obra_cod_obra
+and autor.cod_autor = obra.cod_autor
+group by salao.salao
+;
